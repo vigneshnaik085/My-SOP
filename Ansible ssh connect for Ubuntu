@@ -1,11 +1,11 @@
-To configure Ansible for SSH connections between a master (control) server and node (managed) servers on Ubuntu, follow these steps:
+#To configure Ansible for SSH connections between a master (control) server and node (managed) servers on Ubuntu, follow these steps:
 
 1. Install Ansible on the Control Machine
 Ensure Ansible is installed on your master server (control machine):
 
-
 sudo apt update
 sudo apt install ansible
+
 2. Set Up SSH Access
 Generate SSH Key Pair (if not already done)
 On the control machine, generate an SSH key pair if you haven’t done so already:
