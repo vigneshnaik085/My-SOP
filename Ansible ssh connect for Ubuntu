@@ -1,0 +1,114 @@
+To configure Ansible for SSH connections between a master (control) server and node (managed) servers on Ubuntu, follow these steps:
+
+1. Install Ansible on the Control Machine
+Ensure Ansible is installed on your master server (control machine):
+
+
+sudo apt update
+sudo apt install ansible
+2. Set Up SSH Access
+Generate SSH Key Pair (if not already done)
+On the control machine, generate an SSH key pair if you haven’t done so already:
+
+
+ssh-keygen -t rsa -b 2048
+You can press Enter to accept the default location (~/.ssh/id_rsa) and optionally provide a passphrase for added security.
+
+Copy SSH Key to Managed Nodes
+Copy the public key to each managed node to allow passwordless SSH access:
+
+
+ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@<node-ip>
+Replace <node-ip> with the IP address of each managed node. This command will prompt for the password of the ubuntu user on the managed node.
+
+Test SSH Access
+Verify that you can SSH into each managed node from the control machine without needing to enter a password:
+
+
+ssh ubuntu@<node-ip>
+3. Configure Ansible Inventory
+Create an inventory file that lists your managed nodes. The inventory file tells Ansible which hosts to manage and can be in INI or YAML format.
+
+INI Format
+Create a file called hosts (or another name you prefer) with the following content:
+
+ini
+Copy code
+# hosts
+[nodegroup]
+node1 ansible_host=<node1-ip>
+node2 ansible_host=<node2-ip>
+
+# Example of grouping
+# [webservers]
+# node1
+# node2
+Replace <node1-ip> and <node2-ip> with the IP addresses of your managed nodes.
+
+YAML Format
+Create a file called inventory.yml with the following content:
+
+yaml
+Copy code
+# inventory.yml
+all:
+  hosts:
+    node1:
+      ansible_host: <node1-ip>
+    node2:
+      ansible_host: <node2-ip>
+4. Create an Ansible Configuration File
+(Optional) Create an ansible.cfg file to specify the inventory file location and other settings. This file is typically located in the root directory of your Ansible project or in /etc/ansible/ansible.cfg.
+
+ini
+Copy code
+# ansible.cfg
+[defaults]
+inventory = ./hosts  # or ./inventory.yml if you use YAML
+remote_user = ubuntu
+5. Test Ansible Connection
+Run the ansible command to test connectivity:
+
+
+ansible all -m ping -i hosts
+If you used YAML format for the inventory:
+
+
+ansible all -m ping -i inventory.yml
+The -m ping module checks if Ansible can communicate with the managed nodes.
+
+6. Write and Run Ansible Playbooks
+Create a playbook (e.g., playbook.yml) to define tasks you want to run on your managed nodes:
+
+yaml
+Copy code
+# playbook.yml
+- name: Test playbook
+  hosts: all
+  tasks:
+    - name: Ensure the package list is up-to-date
+      apt:
+        update_cache: yes
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+Run the playbook with:
+
+
+ansible-playbook playbook.yml -i hosts
+Or if you use YAML format:
+
+
+ansible-playbook playbook.yml -i inventory.yml
+Summary
+Install Ansible on your control machine.
+Set Up SSH: Generate and distribute SSH keys for passwordless access.
+Configure Ansible Inventory: Create an inventory file listing your nodes.
+Test Connectivity: Use ansible to verify you can connect to your nodes.
+Write and Run Playbooks: Define and execute tasks with Ansible playbooks.
+With these steps, you should have a functional Ansible setup to manage your Ubuntu EC2 instances or any other Ubuntu servers.
+
+
+
+
